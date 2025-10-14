@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include<cmath>
-#include <iostream>
 
 void init(void) {
     glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -40,10 +39,8 @@ void dda(int x0 , int y0 , int xl, int yl){
 
 void display(void) {
     glClear(GL_COLOR_BUFFER_BIT);
-int x0, y0, xl, yl;
-    std::cout << "Enter x0 y0 xl yl: ";
-    std::cin >> x0 >> y0 >> xl >> yl;
-    // cin >> x0 >> y0 >> xl >> yl;
+
+    int x0= 100 , y0 = 100 , xl = 400 , yl = 300;
     dda(x0 , y0 , xl , yl);
     glFlush();
 
