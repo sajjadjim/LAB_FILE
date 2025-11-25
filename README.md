@@ -75,7 +75,7 @@ clang++ main.cpp -I/dependencies/include -L/dependencies/library -lglut -lGLU -l
 
 ### 3. Run the program:
 ```bash
-./JimAnimation
+./app
 ```
 
 ---
