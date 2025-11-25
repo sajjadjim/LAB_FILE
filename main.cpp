@@ -1,90 +1,117 @@
 #include <GLUT/glut.h> 
 #include <cmath>
 #include <iostream>
-
-
 using namespace std;
 
-// FIX: Renamed global variables to avoid conflict with math.h functions (like y1)
-float rect_x1, rect_x2, rect_y1, rect_y2; 
-float tx, ty;
-float movex = 0, movey = 0;
+float X1, Y1, X2, Y2; 
+float dx, dy; 
 
-void init (void){
+const float L = -90.0f;
+const float R = 90.0f;
+const float B = -90.0f;
+const float T = 90.0f;
+
+void init(){
     glClearColor(0.0, 0.0, 0.0, 0.0);
-    glColor3f(1.0, 1.0, 1.0);
-    glMatrixMode(GL_PROJECTION); // Setup projection matrix
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
     gluOrtho2D(-100, 100, -100, 100);
-    glMatrixMode(GL_MODELVIEW); // Switch back to modelview matrix
+    glMatrixMode(GL_MODELVIEW);
 }
 
-void rec(float x1_r, float y1_r, float x2_r, float y2_r)
-{
+void draw_rectangle(float x1, float y1, float x2, float y2){
     glBegin(GL_QUADS);
-    glColor3f(1.0f, 0.0f, 0.0f); // Red color
-    glVertex2f(x1_r, y1_r);
-    glVertex2f(x2_r, y1_r);
-    glVertex2f(x2_r, y2_r);
-    glVertex2f(x1_r, y2_r);
+    glColor3f(1.0f, 0.0f, 0.0f); 
+    glVertex2f(x1, y1);
+    glVertex2f(x2, y1);
+    glVertex2f(x2, y2);
+    glVertex2f(x1, y2);
     glEnd();
 }
 
-void display (void){
+void draw_boundary(){
+    glBegin(GL_LINE_LOOP); 
+    glColor3f(0.0f, 1.0f, 0.0f); 
+    glVertex2f(L, B);
+    glVertex2f(R, B);
+    glVertex2f(R, T);
+    glVertex2f(L, T);
+    glEnd();
+}
+
+void display(){
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
-    // Apply the translation transformation
-    glTranslatef(movex, movey, 0); 
-    // Use the renamed global variables
-    rec(rect_x1, rect_y1, rect_x2, rect_y2); 
-
+    
+    draw_boundary();
+    draw_rectangle(X1, Y1, X2, Y2); 
+    
     glFlush();
 }
 
-void keyboard(unsigned char key, int x, int y)
-{
-    switch(key)
-    {
-        case 'a': 
-        case 'A': // Move Left
-            movex = movex - tx;
-            break; // FIX: Added break
-        case 'd':
-        case 'D': // Move Right
-            movex = movex + tx;
-            break; // FIX: Added break
-        case 'w':
-        case 'W': // Move Up
-            movey = movey + ty;
-            break; // FIX: Added break
-        case 's':
-        case 'S': // Move Down
-            movey = movey - ty;
-            break; // FIX: Added break
+void timer(int){
+    
+    float wdh = X2 - X1;
+    float hght = Y2 - Y1;
+
+    if (X1 + dx < L || X2 + dx > R) {
+        dx = -dx; 
+        if (X1 < L) { 
+            X1 = L; 
+            X2 = L + wdh; 
+        }
+        if (X2 > R) { 
+            X2 = R; 
+            X1 = R - wdh;
+         }
     }
+
+    if (Y1 + dy < B || Y2 + dy > T) {
+        dy = -dy; 
+        if (Y1 < B) { 
+            Y1 = B; 
+            Y2 = B + hght; 
+        }
+        if (Y2 > T) {
+             Y2 = T; 
+             Y1 = T - hght; 
+            }
+    }
+    
+    X1 += dx;
+    X2 += dx;
+    Y1 += dy;
+    Y2 += dy;
+
     glutPostRedisplay();
+    glutTimerFunc(10, timer, 0); 
 }
 
-int main( int argc, char** argv){
-    cout << "Enter rectangle corner 1 (x1 y1): ";
-    // Use the renamed variables
-    cin >> rect_x1 >> rect_y1; 
-    
-    cout << "Enter rectangle corner 2 (x2 y2): ";
-    // Use the renamed variables
-    cin >> rect_x2 >> rect_y2; 
-    
-    cout << "Translation unit (tx ty): ";
-    // FIX: Correctly reading both tx and ty
-    cin >> tx >> ty; 
+int main(int argc, char** argv){
+
+    // cout << "Enter inner rectangle corner 1 (x1 y1, e.g., -50 0): ";
+    cout << "Enter inner rectangle corner 1 : ";
+    cin >> X1 >> Y1;
+    // cout << "Enter inner rectangle corner 2 (x2 y2, e.g., -40 10): ";
+    cout << "Enter inner rectangle corner 2 : ";
+    cin >> X2 >> Y2;
+    // cout << "Enter diagonal speed (dx, dy, e.g., 2 1): "; 
+    cout << "Enter diagonal speed : "; 
+    cin >> dx >> dy; 
+
+    if (dx == 0.0f && dy == 0.0f) {
+        cout << "Warning: Speed set to (0, 0). Setting default speed to (1, 1).\n";
+        dx = 1.0f;
+        dy = 1.0f;
+    }
 
     glutInit(&argc, argv);
-    glutInitDisplayMode( GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(600, 400);
-    glutInitWindowPosition( 100, 200);
-    glutCreateWindow("2D Rectangle Translation");
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(500, 500);
+    glutCreateWindow("2D Diagonal Bouncing Rectangle");
     init();
     glutDisplayFunc(display);
-    glutKeyboardFunc(keyboard);
+    glutTimerFunc(16, timer, 0); 
     glutMainLoop();
     return 0;
 }

@@ -3,11 +3,11 @@
 #include <iostream>
 #include <cmath>
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void framebuffer_size_callback(GLFWwindow* window, int wdh, int hght);
 void processInput(GLFWwindow *window);
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_wdh = 800;
+const unsigned int SCR_hght = 600;
 
 const char *vertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
@@ -44,7 +44,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Beautiful Animated Triangle", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_wdh, SCR_hght, "Beautiful Animated Triangle", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -161,7 +161,7 @@ void processInput(GLFWwindow *window)
         glfwSetWindowShouldClose(window, true);
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void framebuffer_size_callback(GLFWwindow* window, int wdh, int hght)
 {
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, wdh, hght);
 }

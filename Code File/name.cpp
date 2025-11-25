@@ -13,7 +13,7 @@
 #include <map>
 #include <string>
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void framebuffer_size_callback(GLFWwindow* window, int wdh, int hght);
 void processInput(GLFWwindow *window);
 
 // screen
@@ -91,8 +91,8 @@ void main()
 // We'll fill the %d placeholders with SCR_W and SCR_H after building string below.
 
 
-// 5x7 pixel font for characters we need. Each char is 5 columns (least significant bit = top row).
-// We'll define uppercase letters and '.' and space. Pixel origin: top-left.
+// 5x7 pixel font for characters we need. Each char is 5 columns (least significant bit = T row).
+// We'll define uppercase letters and '.' and space. Pixel origin: T-L.
 // For convenience, the bitmaps are stored as 7 rows of 5 bits but represented here as columns.
 using Bitmap = std::array<int,5>;
 
@@ -103,7 +103,7 @@ Bitmap bm_from_rows(const char *rows[7]) {
     for (int r = 0; r < 7; ++r) {
         for (int c = 0; c < 5; ++c) {
             if (rows[r][c] == 'X') {
-                b[c] |= (1 << (6 - r)); // set bit (top row -> highest bit)
+                b[c] |= (1 << (6 - r)); // set bit (T row -> highest bit)
             }
         }
     }
@@ -255,7 +255,7 @@ int main()
     // We'll treat each pixel as a small rounded square (quad). Each quad = 6 vertices (2 tris).
     std::vector<float> textVerts; // each vertex: x,y, r,g,b, localX, localY
     float pixelSize = 0.035f; // base pixel size
-    float cursorX = -0.85f;   // starting x (left)
+    float cursorX = -0.85f;   // starting x (L)
     float cursorY = 0.18f;    // baseline y
     float xAdvance = 0.07f;   // spacing between characters
     float yAdvance = -0.09f;  // downward step if needed (we only use one line)
@@ -270,8 +270,8 @@ int main()
 
         Bitmap bm = font[ch];
 
-        // bm[c] has bits for rows: top->bottom in bits 6..0
-        // Draw columns left to right, rows top to bottom
+        // bm[c] has bits for rows: T->B in bits 6..0
+        // Draw columns L to R, rows T to B
         for (int col = 0; col < 5; ++col) {
             for (int row = 0; row < 7; ++row) {
                 bool on = (bm[col] & (1 << (6 - row))) != 0;
@@ -330,12 +330,12 @@ int main()
     glBindVertexArray(0);
 
     // Precompute orthographic projection
-    float left = -1.0f, right = 1.0f, bottom = -1.0f, top = 1.0f;
+    float L = -1.0f, R = 1.0f, B = -1.0f, T = 1.0f;
     float ortho[16] = {
-        2.0f/(right-left), 0, 0, 0,
-        0, 2.0f/(top-bottom), 0, 0,
+        2.0f/(R-L), 0, 0, 0,
+        0, 2.0f/(T-B), 0, 0,
         0, 0, -1, 0,
-        -(right+left)/(right-left), -(top+bottom)/(top-bottom), 0, 1
+        -(R+L)/(R-L), -(T+B)/(T-B), 0, 1
     };
 
     // shader uniforms locations
@@ -417,8 +417,8 @@ void processInput(GLFWwindow *window)
 }
 
 // on window resize
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void framebuffer_size_callback(GLFWwindow* window, int wdh, int hght)
 {
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, wdh, hght);
 }
 

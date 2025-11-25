@@ -6,8 +6,8 @@
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/sajjadhossainjim/Desktop/Lab_File",
-      "program": "/Users/sajjadhossainjim/Desktop/Lab_File/build/Debug/outDebug"
+      "cwd": "/Users/sajjadhossainjim/DeskT/Lab_File",
+      "program": "/Users/sajjadhossainjim/DeskT/Lab_File/build/Debug/outDebug"
     }
   ]
 }

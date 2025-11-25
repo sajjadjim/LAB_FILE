@@ -48,7 +48,7 @@ static PFNWGLGETPROCADDRESSPROC_PRIVATE gladGetProcAddressPtr;
 
 #ifdef HAVE_WINAPIFAMILY
   #include <winapifamily.h>
-  #if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
+  #if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKT) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP)
     #define IS_UWP 1
   #endif
 #endif
@@ -453,7 +453,7 @@ PFNGLISSHADERPROC glad_glIsShader = NULL;
 PFNGLISSYNCPROC glad_glIsSync = NULL;
 PFNGLISTEXTUREPROC glad_glIsTexture = NULL;
 PFNGLISVERTEXARRAYPROC glad_glIsVertexArray = NULL;
-PFNGLLINEWIDTHPROC glad_glLineWidth = NULL;
+PFNGLLINEwdhPROC glad_glLinewdh = NULL;
 PFNGLLINKPROGRAMPROC glad_glLinkProgram = NULL;
 PFNGLLOGICOPPROC glad_glLogicOp = NULL;
 PFNGLMAPBUFFERPROC glad_glMapBuffer = NULL;
@@ -646,7 +646,7 @@ static void load_GL_VERSION_1_0(GLADloadproc load) {
 	glad_glCullFace = (PFNGLCULLFACEPROC)load("glCullFace");
 	glad_glFrontFace = (PFNGLFRONTFACEPROC)load("glFrontFace");
 	glad_glHint = (PFNGLHINTPROC)load("glHint");
-	glad_glLineWidth = (PFNGLLINEWIDTHPROC)load("glLineWidth");
+	glad_glLinewdh = (PFNGLLINEwdhPROC)load("glLinewdh");
 	glad_glPointSize = (PFNGLPOINTSIZEPROC)load("glPointSize");
 	glad_glPolygonMode = (PFNGLPOLYGONMODEPROC)load("glPolygonMode");
 	glad_glScissor = (PFNGLSCISSORPROC)load("glScissor");

@@ -106,7 +106,7 @@ Each animation starts at a **different time** to create a cinematic sequence.
 
 ## 🪄 Tips for Better Performance
 - Close background apps when running heavy OpenGL animations.  
-- Use **full-screen mode** for the best experience (you can enable it in the code by setting window size to screen width/height).  
+- Use **full-screen mode** for the best experience (you can enable it in the code by setting window size to screen wdh/hght).  
 - Try increasing `glutTimerFunc` intervals for slower transitions.
 
 ---

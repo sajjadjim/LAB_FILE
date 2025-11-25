@@ -45,11 +45,11 @@ void keyboard(unsigned char key, int x, int y)
     switch(key)
     {
         case 'a': 
-        case 'A': // Move Left
+        case 'A': // Move L
             movex = movex - tx;
             break; // FIX: Added break
         case 'd':
-        case 'D': // Move Right
+        case 'D': // Move R
             movex = movex + tx;
             break; // FIX: Added break
         case 'w':
