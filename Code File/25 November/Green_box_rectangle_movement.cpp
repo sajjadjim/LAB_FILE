@@ -1,11 +1,10 @@
-#include <GLUT/glut.h>
+#include <GLUT/glut.h> 
 #include <cmath>
 #include <iostream>
-#include <cstdlib> // Required for sound
 using namespace std;
 
-float X1, Y1, X2, Y2;
-float dx, dy;
+float X1, Y1, X2, Y2; 
+float dx, dy; 
 
 const float L = -90.0f;
 const float R = 90.0f;
@@ -22,7 +21,7 @@ void init(){
 
 void draw_rectangle(float x1, float y1, float x2, float y2){
     glBegin(GL_QUADS);
-    glColor3f(1.0f, 0.0f, 0.0f);
+    glColor3f(1.0f, 0.0f, 0.0f); 
     glVertex2f(x1, y1);
     glVertex2f(x2, y1);
     glVertex2f(x2, y2);
@@ -31,8 +30,8 @@ void draw_rectangle(float x1, float y1, float x2, float y2){
 }
 
 void draw_boundary(){
-    glBegin(GL_LINE_LOOP);
-    glColor3f(0.0f, 1.0f, 0.0f);
+    glBegin(GL_LINE_LOOP); 
+    glColor3f(0.0f, 1.0f, 0.0f); 
     glVertex2f(L, B);
     glVertex2f(R, B);
     glVertex2f(R, T);
@@ -45,7 +44,7 @@ void display(){
     glLoadIdentity();
     
     draw_boundary();
-    draw_rectangle(X1, Y1, X2, Y2);
+    draw_rectangle(X1, Y1, X2, Y2); 
     
     glFlush();
 }
@@ -56,26 +55,26 @@ void timer(int){
     float hght = Y2 - Y1;
 
     if (X1 + dx < L || X2 + dx > R) {
-        dx = -dx;
-        if (X1 < L) {
-            X1 = L;
-            X2 = L + wdh;
+        dx = -dx; 
+        if (X1 < L) { 
+            X1 = L; 
+            X2 = L + wdh; 
         }
-        if (X2 > R) {
-            X2 = R;
+        if (X2 > R) { 
+            X2 = R; 
             X1 = R - wdh;
          }
     }
 
     if (Y1 + dy < B || Y2 + dy > T) {
-        dy = -dy;
-        if (Y1 < B) {
-            Y1 = B;
-            Y2 = B + hght;
+        dy = -dy; 
+        if (Y1 < B) { 
+            Y1 = B; 
+            Y2 = B + hght; 
         }
         if (Y2 > T) {
-             Y2 = T;
-             Y1 = T - hght;
+             Y2 = T; 
+             Y1 = T - hght; 
             }
     }
     
@@ -85,27 +84,20 @@ void timer(int){
     Y2 += dy;
 
     glutPostRedisplay();
-    glutTimerFunc(10, timer, 0);
-}
-
-// Function to handle sound
-void startMusic() {
-    // ---------------------------------------------------------
-    // CHANGE THE PATH BELOW to your actual file location!
-    // The '&' at the end is crucial. It keeps the animation moving.
-    // ---------------------------------------------------------
-    //                                      👇 Don't forget this word!
-system("while :; do afplay /Users/sajjadhossainjim/Desktop/Lab_File/sound.wav; done &");
+    glutTimerFunc(10, timer, 0); 
 }
 
 int main(int argc, char** argv){
 
+    // cout << "Enter inner rectangle corner 1 (x1 y1, e.g., -50 0): ";
     cout << "Enter inner rectangle corner 1 : ";
     cin >> X1 >> Y1;
+    // cout << "Enter inner rectangle corner 2 (x2 y2, e.g., -40 10): ";
     cout << "Enter inner rectangle corner 2 : ";
     cin >> X2 >> Y2;
-    cout << "Enter diagonal speed : ";
-    cin >> dx >> dy;
+    // cout << "Enter diagonal speed (dx, dy, e.g., 2 1): "; 
+    cout << "Enter diagonal speed : "; 
+    cin >> dx >> dy; 
 
     if (dx == 0.0f && dy == 0.0f) {
         cout << "Warning: Speed set to (0, 0). Setting default speed to (1, 1).\n";
@@ -117,22 +109,9 @@ int main(int argc, char** argv){
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
     glutInitWindowSize(500, 500);
     glutCreateWindow("2D Diagonal Bouncing Rectangle");
-    
     init();
-    
-    // Start the music right before the loop starts
-    startMusic();
-    
     glutDisplayFunc(display);
-    glutTimerFunc(16, timer, 0);
+    glutTimerFunc(16, timer, 0); 
     glutMainLoop();
     return 0;
 }
-
-
-
-// code run to give the value of main.cpp
-
-// -20 -20 
-// 20 20
-// 1 1
