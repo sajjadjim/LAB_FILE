@@ -1,138 +1,191 @@
-#include <GLUT/glut.h>
-#include <cmath>
-#include <iostream>
-#include <cstdlib> // Required for sound
-using namespace std;
+/*
+================================================================================
+                               LAB REPORT
+================================================================================
 
-float X1, Y1, X2, Y2;
-float dx, dy;
+Experiment Name: 2D Animation of a Moving Object with Sound
+Course Code:     [Insert Code]
+Submitted By:    [Your Name]
+ID:              [Your ID]
+Date:            [Current Date]
 
-const float L = -90.0f;
-const float R = 90.0f;
-const float B = -90.0f;
-const float T = 90.0f;
+--------------------------------------------------------------------------------
+1. OBJECTIVE
+--------------------------------------------------------------------------------
+The objective of this experiment is to design a 2D graphical object (a Boat) 
+using OpenGL primitives and animate its movement across the screen using 
+geometric translation. Additionally, the project integrates audio to play 
+background sound, demonstrating multimedia handling in a C++ graphics environment.
 
-void init(){
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluOrtho2D(-100, 100, -100, 100);
-    glMatrixMode(GL_MODELVIEW);
+--------------------------------------------------------------------------------
+2. THEORY
+--------------------------------------------------------------------------------
+A. Geometric Translation:
+   Translation shifts an object from one position to another. If a point is at 
+   P(x, y), its new position P'(x', y') after translation by (tx, ty) is:
+       x' = x + tx
+       y' = y + ty
+   In this experiment, we increment 'tx' continuously to simulate horizontal 
+   movement.
+
+B. Animation Loop:
+   Motion is achieved by the "Clear-Update-Draw" cycle:
+   1. Clear the screen.
+   2. Update the object's position variable.
+   3. Draw the object at the new position.
+   4. Swap the display buffers (Double Buffering).
+
+C. Audio Integration (macOS):
+   We use the Unix system command `afplay` to play audio files. The ampersand 
+   (&) is used to run the audio in a background thread so it does not freeze 
+   the graphics animation.
+
+--------------------------------------------------------------------------------
+3. ALGORITHM
+--------------------------------------------------------------------------------
+1. Initialize the boat's starting X-position to the left edge of the screen.
+2. Execute the system command `afplay boat_sound.wav &` to start audio.
+3. In the display function:
+   a. Clear the background (Blue color for sky/water).
+   b. Draw the boat relative to the current X-position.
+   c. Draw static elements (like water waves or sun).
+   d. Swap buffers.
+4. In the timer function:
+   a. Increase the X-position by a speed factor.
+   b. If X-position > Screen Width, reset to Left Edge (Looping).
+   c. Request redisplay.
+5. Repeat step 4 every 16ms (~60 FPS).
+
+================================================================================
+                               END OF REPORT
+================================================================================
+*/
+
+#include <GLUT/glut.h>  // Mac-specific GLUT header
+#include <math.h>
+#include <cstdlib>      // For system() command
+
+// Global Variables
+float boatX = -350.0f;  // Start position (Left side)
+float speed = 2.5f;     // Movement speed
+
+// --- Helper Function to Draw a Circle (for the Sun) ---
+void drawCircle(float cx, float cy, float r, int segments) {
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < segments; i++) {
+        float theta = 2.0f * 3.1415926f * float(i) / float(segments);
+        float x = r * cosf(theta);
+        float y = r * sinf(theta);
+        glVertex2f(x + cx, y + cy);
+    }
+    glEnd();
 }
 
-void draw_rectangle(float x1, float y1, float x2, float y2){
+// --- Function to Draw the Boat Object ---
+void drawBoat(float x, float y) {
+    // 1. Boat Hull (Trapezoid - Brown)
+    glColor3f(0.6, 0.3, 0.0);
+    glBegin(GL_POLYGON);
+        glVertex2f(x - 60, y);       // Bottom Left
+        glVertex2f(x + 60, y);       // Bottom Right
+        glVertex2f(x + 90, y + 40);  // Top Right
+        glVertex2f(x - 90, y + 40);  // Top Left
+    glEnd();
+
+    // 2. Boat Cabin (Rectangle - White)
+    glColor3f(0.9, 0.9, 0.9);
     glBegin(GL_QUADS);
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glVertex2f(x1, y1);
-    glVertex2f(x2, y1);
-    glVertex2f(x2, y2);
-    glVertex2f(x1, y2);
+        glVertex2f(x - 40, y + 40);
+        glVertex2f(x + 40, y + 40);
+        glVertex2f(x + 40, y + 80);
+        glVertex2f(x - 40, y + 80);
+    glEnd();
+
+    // 3. Windows (Blue Squares)
+    glColor3f(0.3, 0.7, 1.0);
+    glBegin(GL_QUADS);
+        // Window 1
+        glVertex2f(x - 30, y + 50);
+        glVertex2f(x - 10, y + 50);
+        glVertex2f(x - 10, y + 70);
+        glVertex2f(x - 30, y + 70);
+        // Window 2
+        glVertex2f(x + 10, y + 50);
+        glVertex2f(x + 30, y + 50);
+        glVertex2f(x + 30, y + 70);
+        glVertex2f(x + 10, y + 70);
+    glEnd();
+
+    // 4. Chimney/Exhaust (Dark Grey)
+    glColor3f(0.2, 0.2, 0.2);
+    glBegin(GL_QUADS);
+        glVertex2f(x - 10, y + 80);
+        glVertex2f(x + 10, y + 80);
+        glVertex2f(x + 10, y + 100);
+        glVertex2f(x - 10, y + 100);
     glEnd();
 }
 
-void draw_boundary(){
-    glBegin(GL_LINE_LOOP);
-    glColor3f(0.0f, 1.0f, 0.0f);
-    glVertex2f(L, B);
-    glVertex2f(R, B);
-    glVertex2f(R, T);
-    glVertex2f(L, T);
-    glEnd();
-}
-
-void display(){
+// --- Main Display Function ---
+void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
+
+    // 1. Draw Sky (Light Blue Background set in init)
     
-    draw_boundary();
-    draw_rectangle(X1, Y1, X2, Y2);
-    
-    glFlush();
+    // 2. Draw Sun (Yellow) - Static
+    glColor3f(1.0, 1.0, 0.0);
+    drawCircle(200, 200, 40, 30);
+
+    // 3. Draw Water (Deep Blue Rect at bottom) - Static
+    glColor3f(0.0, 0.4, 0.8);
+    glBegin(GL_QUADS);
+        glVertex2f(-350, -350);
+        glVertex2f( 350, -350);
+        glVertex2f( 350, -100);
+        glVertex2f(-350, -100);
+    glEnd();
+
+    // 4. Draw Moving Boat
+    // Placing it nicely on top of the water line (-100)
+    drawBoat(boatX, -100); 
+
+    glutSwapBuffers();
 }
 
-void timer(int){
-    
-    float wdh = X2 - X1;
-    float hght = Y2 - Y1;
+// --- Animation Timer ---
+void timer(int) {
+    boatX += speed; // Move right
 
-    if (X1 + dx < L || X2 + dx > R) {
-        dx = -dx;
-        if (X1 < L) {
-            X1 = L;
-            X2 = L + wdh;
-        }
-        if (X2 > R) {
-            X2 = R;
-            X1 = R - wdh;
-         }
+    // Loop logic: If boat leaves right side, reappear on left
+    if (boatX > 400) {
+        boatX = -400;
     }
-
-    if (Y1 + dy < B || Y2 + dy > T) {
-        dy = -dy;
-        if (Y1 < B) {
-            Y1 = B;
-            Y2 = B + hght;
-        }
-        if (Y2 > T) {
-             Y2 = T;
-             Y1 = T - hght;
-            }
-    }
-    
-    X1 += dx;
-    X2 += dx;
-    Y1 += dy;
-    Y2 += dy;
 
     glutPostRedisplay();
-    glutTimerFunc(10, timer, 0);
+    glutTimerFunc(200, timer, 0); // ~60 FPS
 }
 
-// Function to handle sound
-void startMusic() {
-    // ---------------------------------------------------------
-    // CHANGE THE PATH BELOW to your actual file location!
-    // The '&' at the end is crucial. It keeps the animation moving.
-    // ---------------------------------------------------------
-    //                                      👇 Don't forget this word!
-system("while :; do afplay /Users/sajjadhossainjim/Desktop/Lab_File/sound.wav; done &");
+void init() {
+    glClearColor(0.5, 0.8, 1.0, 1.0); // Sky Blue Background
+    gluOrtho2D(-350, 350, -350, 350);
 }
 
-int main(int argc, char** argv){
-
-    cout << "Enter inner rectangle corner 1 : ";
-    cin >> X1 >> Y1;
-    cout << "Enter inner rectangle corner 2 : ";
-    cin >> X2 >> Y2;
-    cout << "Enter diagonal speed : ";
-    cin >> dx >> dy;
-
-    if (dx == 0.0f && dy == 0.0f) {
-        cout << "Warning: Speed set to (0, 0). Setting default speed to (1, 1).\n";
-        dx = 1.0f;
-        dy = 1.0f;
-    }
-
+int main(int argc, char** argv) {
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(500, 500);
-    glutCreateWindow("2D Diagonal Bouncing Rectangle");
-    
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitWindowSize(700, 700);
+    glutCreateWindow("2D Boat Animation with Sound");
+
     init();
-    
-    // Start the music right before the loop starts
-    startMusic();
-    
+
+    // --- AUDIO COMMAND (MAC SPECIFIC) ---
+    // Uses standard macOS 'afplay' command. 
+    // The '&' ensures it runs in background.
+    system("afplay sound.wav &");
+
     glutDisplayFunc(display);
-    glutTimerFunc(16, timer, 0);
+    glutTimerFunc(0, timer, 0);
     glutMainLoop();
     return 0;
 }
-
-
-
-// code run to give the value of main.cpp
-
-// -20 -20 
-// 20 20
-// 1 1
